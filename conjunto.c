@@ -110,6 +110,13 @@ int fIguais(TConjunto c1, TConjunto c2)
     return 1;
 } 
 
+void fImprime(TConjunto c)
+{
+    for(int i = 0; i < c.n ; i++)
+        printf("%d, ",c.inteiros[i]);
+    printf("\n");
+}
+
 void main(){
     TConjunto c1 = criarConjunto();
     TConjunto c2 = criarConjunto();
@@ -118,4 +125,6 @@ void main(){
     fUniao(c1,c2);    
     fIntercecao(c1,c2);
     printf(fIguais(c1,c2)?"Conjuntos iguais\n":"Conjuntos diferentes\n");
+    fImprime(c1);
+    fImprime(c2);
 }
