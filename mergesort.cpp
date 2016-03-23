@@ -11,11 +11,8 @@ void printArray(int* array, int n)
     cout << endl;
 }
 
-int* interpolate(int* array, int n, int* aux)
+int* interpolate(int* array, int n, int* aux, int p, int q, int r)
 {
-    int q = n-1;
-    int p = q+1-n;
-    int r = q/2;
     int k = q;
     int a = p;
     int b = q;
@@ -43,10 +40,13 @@ int* interpolate(int* array, int n, int* aux)
 
 int* mergeRecursive(int* array, int n, int* aux)
 {
-    if(n == 1)  return array;
-    mergeRecursive(array,n/2,aux);    //r-p+1 eh o numero de elementos entre p ate a metade
-    //mergeRecursive(array,n/2,aux);    //q-r+1 eh o numero de elementos entre a metade ate o q
-    return interpolate(array,n,aux);
+    int q = n-1;
+    int p = q+1-n;
+    int r = q/2;
+    if(p == q)  return array;
+    mergeRecursive(array,r+1,aux);    //r-p+1 eh o numero de elementos entre p ate a metade
+    //mergeRecursive(array,q+1,aux);    //q-r+1 eh o numero de elementos entre a metade ate o q
+    return interpolate(array,n,aux,p,q,r);
 }
 
 int* merge(int* array, int* aux, int n)
