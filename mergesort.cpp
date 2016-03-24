@@ -6,20 +6,20 @@ void printArray(int* array, int n)
 {
     for(int i = 0; i<n; i++)
     {
-        cout << array[i] <<",";
+        cout << array[i] <<" ";
     }
     cout << endl;
 }
 
-int* interpolate(int* array, int n, int* aux, int p, int q, int r)
+int* interpolate(int* array, int* aux, int p, int q, int r)
 {
     int k = q;
     int a = p;
     int b = q;
     for(int i = p;i<=r;i++) aux[i] = array[i];
     for(int j = r+1;j<=q;j++,k--) aux[j] = array[k];
-    cout << "Pre Interpolate:" << endl;
-    printArray(array,n);
+//    cout << "Pre Interpolate:" << endl;
+//    printArray(array,n);
     for(k=p;k<=q;k++)
     {   
         if(aux[a]<=aux[b])
@@ -33,25 +33,24 @@ int* interpolate(int* array, int n, int* aux, int p, int q, int r)
             b--;
         }
     }     
-    cout << "Interpolate Result:" << endl;
-    printArray(array,n);
+ //   cout << "Interpolate Result:" << endl;
+ //  printArray(array,n);
     return array;
 }
 
-int* mergeRecursive(int* array, int n, int* aux)
+int* mergeRecursive(int* array,int p, int q, int* aux)
 {
-    int q = n-1;
-    int p = q+1-n;
-    int r = q/2;
-    if(p == q)  return array;
-    mergeRecursive(array,r+1,aux);    //r-p+1 eh o numero de elementos entre p ate a metade
-    //mergeRecursive(array,q+1,aux);    //q-r+1 eh o numero de elementos entre a metade ate o q
-    return interpolate(array,n,aux,p,q,r);
+    int flag;
+    if(p >= q)  return array;
+    int r = (p+q)/2;
+    mergeRecursive(array,p,r,aux);
+    mergeRecursive(array,r+1,q,aux);
+    interpolate(array,aux,p,q,r);
 }
 
 int* merge(int* array, int* aux, int n)
 {
-    mergeRecursive(array,n,aux);
+    mergeRecursive(array,0,n-1,aux);
 }
 
 int main()
