@@ -1,0 +1,64 @@
+4
+balancando raiz: 1
+fb: 0
+balanca no 1
+ja equilibrado
+nova raiz: 1
+arvore: (C1()())
+
+balancando raiz: 2
+filho E: 1
+fb: 1
+balanca no 2
+ja equilibrado
+nova raiz: 2
+novo filho E: 1
+arvore: (C2(C1()())())
+
+balancando raiz: 8
+fb: 0
+balanca no 8
+ja equilibrado
+nova raiz: 8
+arvore: (C8()())
+
+balancando raiz: 5
+filho D: 8
+fb: -1
+balanca no 5
+ja equilibrado
+nova raiz: 5
+novo filho D: 8
+arvore: (C5()(C8()()))
+
+balancando raiz: 9
+filho E: 5
+fb: 2
+balanca no 9
+realizando rotacao LR
+nova raiz: 8
+novo filho E: 5
+novo filho D: 9
+arvore: (C8(C5()())(C9()()))
+
+balancando raiz: 4
+filho D: 8
+fb: -2
+balanca no 4
+nova raiz: 4
+novo filho D: 8
+arvore: (C4()(C8(C5()())(C9()())))
+
+balancando raiz: 3
+filho E: 2
+filho D: 4
+fb: -1
+balanca no 3
+ja equilibrado
+nova raiz: 3
+novo filho E: 2
+novo filho D: 4
+arvore: (C3(C2(C1()())())(C4()(C8(C5()())(C9()()))))
+
+3
+(C3(C2(C1()())())(C4()(C8(C5()())(C9()()))))

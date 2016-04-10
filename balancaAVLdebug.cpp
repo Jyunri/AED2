@@ -68,6 +68,10 @@ int alturaArvore(Arvore* a,int altura)
 
 int calculaFB(Arvore* a)
 {
+    if(a==NULL) return 0;
+    //if(a->Esq == NULL && a->Dir == NULL)  return 0;
+    //if(a->Esq == NULL)  return alturaArvore(a->Dir,0);
+    //if(a->Dir == NULL)  return alturaArvore(a->Esq,0);
     return alturaArvore(a->Esq,0) - alturaArvore(a->Dir,0);
 }   
 
@@ -122,44 +126,63 @@ Arvore* rotacaoRL(Arvore *a)
 } 
 
 Arvore* balancaNo(Arvore *a)
-{   
+{  
+    cout << endl << "balanca no " << a->Item.Chave; 
     if(calculaFB(a)>1)
     {
         if(calculaFB(a->Esq)>0) 
         {
+            cout << endl << "realizando rotacao LL";
             a = rotacaoLL(a);
             return a;
         }
-        else
+        else if(calculaFB(a->Esq)<0) 
         { 
+            cout << endl << "realizando rotacao LR";
             a = rotacaoLR(a);
             return a;
         }
     }
     else if(calculaFB(a)<-1)
     {
-        if(calculaFB(a->Esq)<0)
+        if(calculaFB(a->Dir)<0)
         {
+            cout << endl << "realizando rotacao RR";
             a = rotacaoRR(a);
             return a;
         }
-        else
+        else if(calculaFB(a->Dir)>0) 
         {
+            cout << endl << "realizando rotacao RL";
             a = rotacaoRL(a);
             return a;
         }
     }
     else
+    {
+        cout << endl << "ja equilibrado";
         return a;
+    }
+    return a;
 }
 
 Arvore* balanceamento(Arvore* a)
 {   
     if(a!=NULL)
     {
-        balanceamento(a->Esq);
-        balanceamento(a->Dir);
+        a->Esq = balanceamento(a->Esq);
+        a->Dir = balanceamento(a->Dir);
+        cout << endl << "balancando raiz: " << a->Item.Chave;
+        if(a->Esq!=NULL)    cout << endl << "filho E: " << a->Esq->Item.Chave;
+        if(a->Dir!=NULL)    cout << endl << "filho D: " << a->Dir->Item.Chave;
+        cout << endl << "fb: " << calculaFB(a);
         a = balancaNo(a);
+        cout << endl << "nova raiz: " << a->Item.Chave;
+        if(a->Esq!=NULL)    cout << endl << "novo filho E: " << a->Esq->Item.Chave;
+        if(a->Dir!=NULL)    cout << endl << "novo filho D: " << a->Dir->Item.Chave;
+        cout << endl << "arvore: ";
+        imprime(a);
+        cout << endl;
     }
     return a;
  } 
