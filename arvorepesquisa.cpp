@@ -26,8 +26,16 @@ typedef struct
     int n;
 }TDicionario;
 
-void imprime(TDicionario *d)
+
+int imprime(TNo* raiz)
 {
+    if(raiz == NULL){
+        //cout << endl << "arvore vazia";
+        return -1;
+    }
+    if(raiz->esq!=NULL)  imprime(raiz->esq);
+    if(raiz->dir!=NULL)  imprime(raiz->dir);
+    cout << raiz->item.chave << " ";
 }
 
 TDicionario* Tdicionario_inicia()
@@ -39,15 +47,15 @@ TDicionario* Tdicionario_inicia()
     return d;
 }
 
-TNo* pesquisa(int elemento, TNo* raiz)
+int pesquisa(int elemento, TNo* raiz)
 {
-    if(raiz == NULL) return raiz;
-    if(elemento == raiz->item.chave)    return raiz;
+    if(raiz == NULL) return -1;
+    if(elemento == raiz->item.chave)    return 1;
     if(elemento < (raiz->item.chave))  return pesquisa(elemento,raiz->esq);
     return pesquisa(elemento,raiz->dir);
 } 
 
-int insere(TDicionario* d, int elemento)
+TNo* criaNo(int elemento)
 {
     TNo* novo;
     novo = (TNo*)malloc(sizeof(TNo));
@@ -55,36 +63,50 @@ int insere(TDicionario* d, int elemento)
     novo->esq = NULL;
     novo->dir = NULL;
 
-    TNo* aux = d->raiz;
-    TNo* teste = d->raiz->esq;
-   /* while(1)
+    return novo;
+}
+    
+int insere(TDicionario* d,TNo** raiz, int elemento)
+{
+    if(*raiz == NULL)
     {
-        if(elemento < aux->item.chave)
-        {
-            if(aux->esq==NULL)
-            {
-                aux->esq = novo; 
-                d->n++;
-                break;
-            }
-            aux = aux->esq;
-        }
-        else
-        {
-            if(aux->dir==NULL)
-            {
-                aux->dir = novo; 
-                d->n++;
-                break;
-            }
-            aux = aux->dir;
-        }
-    }*/
+        *raiz = (criaNo(elemento));
+        //cout << endl << "Criado no " << (*raiz)->item.chave;
+        d->n++;
+        //cout << endl << "endereco raiz insere " << raiz;
+        return 1;
+    }
+    if(elemento < (*raiz)->item.chave) insere(d,&((*raiz)->esq),elemento);
+    else if(elemento > (*raiz)->item.chave) insere(d,&((*raiz)->dir),elemento);
     return 0;
 }    
 
-int retira(TDicionario* d, int elemento)
+TNo* sucessor(TNo* raiz)
 {
+    TNo* noSucessor;
+    if(raiz !=NULL) 
+    {
+        if(raiz->esq == NULL)
+        {
+            noSucessor = raiz;
+            if(raiz->dir!=NULL) raiz = raiz->dir;   
+            return noSucessor;
+        }
+        return sucessor(raiz->esq);
+    }
+    return NULL;
+}
+
+int retira(TDicionario* d,TNo* raiz, int elemento)
+{
+    if(raiz == NULL)    return -1;
+    if(elemento < raiz->item.chave) return retira(d,raiz->esq,elemento);
+    else if(elemento > raiz->item.chave) return retira(d,raiz->dir,elemento);
+    if(raiz->esq==NULL && raiz->dir==NULL)  return 0;
+    else if(raiz->esq==NULL) raiz = raiz->dir;
+    else if(raiz->dir==NULL) raiz = raiz->esq;
+    else raiz = sucessor(raiz->dir); 
+    d->n--;
     return 0;
 }
         
@@ -92,17 +114,18 @@ int main()
 {
     TDicionario* d = Tdicionario_inicia();
     int elemento;
-    TNo* indice;
+    int indice;
     while(1)
     {
         cin >> elemento;
         if(elemento<0)  break;
-        insere(d,elemento);
+        insere(d,&(d->raiz),elemento);
+        //cout << endl << "endereco raiz main " << &d->raiz;
     }
-    
-    //cin >> elemento;
-    //indice =  pesquisa(elemento,d->raiz);
-    //indice != NULL?retira(d,elemento):insere(d,elemento);
+    //imprime(d->raiz);
+    cin >> elemento;
+    indice =  pesquisa(elemento,d->raiz);
+    indice != -1?retira(d,d->raiz,elemento):insere(d,&(d->raiz),elemento);
     cout << d->n;
     free(d);
 }
