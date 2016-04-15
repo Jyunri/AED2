@@ -80,7 +80,7 @@ int insere(TDicionario* d,TNo** raiz, int elemento)
     else if(elemento > (*raiz)->item.chave) insere(d,&((*raiz)->dir),elemento);
     return 0;
 }    
-
+/*
 TNo* sucessor(TNo* raiz)
 {
     TNo* noSucessor;
@@ -96,16 +96,39 @@ TNo* sucessor(TNo* raiz)
     }
     return NULL;
 }
+*/
 
-int retira(TDicionario* d,TNo* raiz, int elemento)
+TNo* sucessor(TNo** raiz)
 {
+    TNo* noSucessor;
+    if(*raiz !=NULL) 
+    {
+        if((*raiz)->esq == NULL)
+        {
+            noSucessor = *raiz;
+            if((*raiz)->dir!=NULL) *raiz = (*raiz)->dir;   
+            return noSucessor;
+        }
+        return sucessor(&((*raiz)->esq));
+    }
+    return NULL;
+}
+
+int retira(TDicionario* d,TNo** raiz, int elemento)
+{
+    TNo* aux;
     if(raiz == NULL)    return -1;
-    if(elemento < raiz->item.chave) return retira(d,raiz->esq,elemento);
-    else if(elemento > raiz->item.chave) return retira(d,raiz->dir,elemento);
-    if(raiz->esq==NULL && raiz->dir==NULL)  return 0;
-    else if(raiz->esq==NULL) raiz = raiz->dir;
-    else if(raiz->dir==NULL) raiz = raiz->esq;
-    else raiz = sucessor(raiz->dir); 
+    if(elemento < (*raiz)->item.chave) return retira(d,&((*raiz)->esq),elemento);
+    else if(elemento > (*raiz)->item.chave) return retira(d,&((*raiz)->dir),elemento);
+    if((*raiz)->esq==NULL && (*raiz)->dir==NULL)  free(*raiz);
+    else if((*raiz)->esq==NULL) *raiz = (*raiz)->dir;
+    else if((*raiz)->dir==NULL) *raiz = (*raiz)->esq;
+    else
+    {
+        aux = sucessor(&((*raiz)->dir)); 
+        (*raiz)->item.chave = aux->item.chave;
+        free(aux);
+    }
     d->n--;
     return 0;
 }
@@ -122,10 +145,10 @@ int main()
         insere(d,&(d->raiz),elemento);
         //cout << endl << "endereco raiz main " << &d->raiz;
     }
-    //imprime(d->raiz);
     cin >> elemento;
     indice =  pesquisa(elemento,d->raiz);
-    indice != -1?retira(d,d->raiz,elemento):insere(d,&(d->raiz),elemento);
+    indice != -1?retira(d,&(d->raiz),elemento):insere(d,&(d->raiz),elemento);
+    //imprime(d->raiz);
     cout << d->n;
     free(d);
 }
