@@ -83,7 +83,107 @@ TNo* criaNo(int elemento)
 
     return novo;
 }
+ 
+void rotacaoLL(TNo **a)
+{
+    TNo* filho = (*a)->esq;  
+    //ajuste dos fb
+    if(filho->fb == 1){  (*a)->fb = 0; filho->fb = 0;}
+    else{ (*a)->fb = 1; filho->fb = -1;} //nunca entra em insercao, pai ruim filho ok
+
+    (*a)->esq = filho->dir;
+    filho->dir = *a;
+    *a = filho;
+} 
+
+void rotacaoRR(TNo **a)
+{
+    TNo* filho = (*a)->dir;
+    //ajuste dos fb
+    if(filho->fb == -1){  (*a)->fb = 0; filho->fb = 0;}
+    else {(*a)->fb = -1; filho->fb = 1;}
     
+    (*a)->dir = filho->esq;
+    filho->esq = *a;
+    *a = filho;
+} 
+
+void rotacaoLR(TNo **a)
+{
+    TNo* filho = (*a)->esq;
+    TNo* neto = filho->dir;
+    //ajuste dos fb
+    if(neto->fb == 1)  {(*a)->fb = -1; filho->fb = 0;}
+    else if(neto->fb == -1) {(*a)->fb = 0; filho->fb = 1;}
+    else {(*a)->fb = 0; filho->fb = 0;}
+    filho->fb = 0;
+
+    filho->dir = neto->esq;
+    neto->esq = filho;
+    (*a)->esq = neto->dir;
+    neto->dir = *a;
+    *a = neto;
+} 
+    
+void rotacaoRL(TNo **a)
+{
+    TNo* filho = (*a)->dir;
+    TNo* neto = filho->esq;
+    //ajuste dos fb
+    if(neto->fb == 1)  {(*a)->fb = 0; filho->fb = -1;}
+    else if(neto->fb == -1) {(*a)->fb = 1; filho->fb = 0;}
+    else {(*a)->fb = 0; filho->fb = 0;}
+    filho->fb = 0;
+    
+    filho->esq = neto->dir;
+    neto->dir = filho;
+    (*a)->dir = neto->esq;
+    neto->esq = *a;
+    *a = neto;
+} 
+
+int balancaNoEsq(TNo **raiz)
+{  
+    if((*raiz)->esq->fb > 0){   rotacaoLL(raiz); return 1;}
+    else if((*raiz)->esq->fb < 0) {rotacaoLR(raiz); return 1;}
+    else{ rotacaoLL(raiz);   return 0;}   //soh ocorre na remocao
+}
+
+int balancaNoDir(TNo **raiz)
+{  
+    if((*raiz)->dir->fb > 0) {  rotacaoRL(raiz); return 1;}
+    else if((*raiz)->dir->fb < 0) {rotacaoRR(raiz); return 1;}
+    else {rotacaoRR(raiz);   return 0;}   //soh ocorre na remocao
+}
+
+    
+
+int sucessor(TNo** pai, TNo** filho)
+{
+    TNo* aux;
+    if(*filho !=NULL) 
+    {
+        if((*filho)->esq == NULL)
+        {
+            aux = *filho;
+            (*pai)->item = aux->item;
+            *filho = (*filho)->dir;   
+            free(aux);
+            return 1;
+        }
+        else
+        {
+            if(sucessor(&(*pai),(&((*filho)->esq))))   //diminuiu
+                switch((*filho)->fb){
+                    case -1: return balancaNoDir(filho);
+                    case 0: (*filho)->fb--;  return 0;
+                    case 1: (*filho)->fb--;  return 1;
+                }
+        }
+    }
+    return 0;//erro
+}
+
 int insere(TNo** raiz, int elemento)
 {
     if(*raiz == NULL)
@@ -101,131 +201,90 @@ int insere(TNo** raiz, int elemento)
             case 0:
                 (*raiz)->fb += 1;
                 return 1;   //arvore cresceu
-                break;
             case 1:
-                (*raiz)->fb += 1;   
-                return balancaNoEsq(&((*raiz)->esq));
-                //return 0;   //arvore nao cresceu
-                break;
+                balancaNoEsq(raiz);
+                return 0;   //arvore nao cresceu
             case -1:
                 (*raiz)->fb += 1;    //arvore perfeita 
                 return 0; //arvore nao cresceu
-                break;  
             }
         }
     }
-    
-    else if(elemento > (*raiz)->item.chave) insere(&((*raiz)->dir),elemento);
-    return 0;
-}    
-
-TNo* sucessor(TNo** raiz)
-{
-    TNo* noSucessor;
-    if(*raiz !=NULL) 
+    else if(elemento > (*raiz)->item.chave)
     {
-        if((*raiz)->esq == NULL)
+        if(insere(&((*raiz)->dir),elemento))    //ao inserir, arvore cresceu
         {
-            noSucessor = *raiz;
-            if((*raiz)->dir!=NULL) *raiz = (*raiz)->dir;   
-            return noSucessor;
+            switch((*raiz)->fb) //cenario anterior
+            {
+            case 0:
+                (*raiz)->fb -= 1;
+                return 1;   //arvore cresceu
+            case 1:
+                (*raiz)->fb -= 1;   
+                return 0;   //arvore nao cresceu
+            case -1:
+                balancaNoDir(raiz);
+                return 0; //arvore nao cresceu
+            }
         }
-        return sucessor(&((*raiz)->esq));
     }
-    return NULL;
-}
+    return 0;   //erro na insercao
+}    
 
 int retira(TDicionario* d,TNo** raiz, int elemento)
 {
     TNo* aux;
     if(raiz == NULL)    return -1;
-    if(elemento < (*raiz)->item.chave) return retira(d,&((*raiz)->esq),elemento);
-    else if(elemento > (*raiz)->item.chave) return retira(d,&((*raiz)->dir),elemento);
-    if((*raiz)->esq==NULL && (*raiz)->dir==NULL)  free(*raiz);
-    else if((*raiz)->esq==NULL) *raiz = (*raiz)->dir;
-    else if((*raiz)->dir==NULL) *raiz = (*raiz)->esq;
-    else
+    if(elemento < (*raiz)->item.chave)
     {
-        aux = sucessor(&((*raiz)->dir)); 
-        (*raiz)->item.chave = aux->item.chave;
-        free(aux);
+        if(retira(d,&((*raiz)->esq),elemento)) //arvore esq diminuiu
+        {
+            switch((*raiz)->fb)
+            {
+            case 0:
+                (*raiz)->fb -= 1;
+                return 0;   //arvore nao diminuiu
+            case 1:
+                (*raiz)->fb -= 1;   
+                return 1;   //arvore dimninuiu
+            case -1:
+                return balancaNoDir(raiz);
+            }
+        }
     }
-    d->n--;
+    else if(elemento > (*raiz)->item.chave) 
+    {
+        if(retira(d,&((*raiz)->dir),elemento))
+        {
+            switch((*raiz)->fb)
+            {
+            case 0:
+                (*raiz)->fb += 1;
+                return 0;   //arvore nao diminuiu
+            case 1:
+                return balancaNoEsq(raiz);
+            case -1:
+                (*raiz)->fb += 1;     
+                return 1; //arvore diminuiu
+            }
+        }
+    }
+    else    //elemento encontrado
+    {   
+        aux = *raiz;
+        if((*raiz)->esq==NULL) *raiz = (*raiz)->dir;
+        else if((*raiz)->dir==NULL) *raiz = (*raiz)->esq;
+        else
+        {
+            d->n--;
+            return sucessor(&(*raiz),&((*raiz)->dir)); 
+        }
+        free(aux); 
+        d->n--;
+        return 1;   //diminuiu
+    }
     return 0;
 }
- 
-void rotacaoLL(TNo **a)
-{
-    TNo* filho = (*a)->esq;  
-    (*a)->esq = filho->dir;
-    filho->dir = *a;
-    *a = filho;
-} 
-
-void rotacaoRR(TNo **a)
-{
-    TNo* filho = (*a)->dir;
-    (*a)->dir = filho->esq;
-    filho->esq = *a;
-    *a = filho;
-} 
-
-void rotacaoLR(TNo **a)
-{
-    TNo* filho = (*a)->esq;
-    TNo* neto = filho->dir;
-    filho->dir = neto->esq;
-    neto->esq = filho;
-    (*a)->esq = neto->dir;
-    neto->dir = *a;
-    *a = neto;
-} 
-    
-TNo* rotacaoRL(TNo **a)
-{
-    TNo* filho = (*a)->dir;
-    TNo* neto = filho->esq;
-    filho->esq = neto->dir;
-    neto->dir = filho;
-    (*a)->dir = neto->esq;
-    neto->esq = *a;
-} 
-/*
-TNo* balancaNoEsq(TNo **noEsq)
-{  
-    if(*noEsq->fb > 1)
-    {
-        if(calculaFB(a->esq)>0) 
-        {
-            a = rotacaoLL(&a);
-            return a;
-        }
-        else if(calculaFB(a->esq)<0) 
-        { 
-            a = rotacaoLR(&a);
-            return a;
-        }
-    }
-    else if(calculaFB(a)<-1)
-    {
-        if(calculaFB(a->dir)<0)
-        {
-            a = rotacaoRR(&a);
-            return a;
-        }
-        else if(calculaFB(a->dir)>0) 
-        {
-            a = rotacaoRL(a);
-            return a;
-        }
-    }
-    else
-    {
-        return a;
-    }
-    return a;
-}
-*/
 int main()
 {
     TDicionario* d = Tdicionario_inicia();
@@ -236,18 +295,16 @@ int main()
     while(i<=entradas)
     {
         cin >> elemento;
-        if(elemento<0)  break;
         insere(&(d->raiz),elemento);
+        //imprime(d->raiz);
         d->n++;
-        if(elemento==9)    rotacaoRR(&(d->raiz));
         i++;
     }
     cin >> elemento;
     indice =  pesquisa(elemento,d->raiz);
-    cout << "Encontrou? " << indice << endl;
-    //indice != -1?retira(d,&(d->raiz),elemento):insere(d,&(d->raiz),elemento);
+    indice != -1?retira(d,&(d->raiz),elemento):insere(&(d->raiz),elemento);
     imprime(d->raiz);
-    imprimeFB(d->raiz);
+    //imprimeFB(d->raiz);
     free(d);
 }
 
