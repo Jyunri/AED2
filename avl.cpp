@@ -304,7 +304,7 @@ int main()
     indice =  pesquisa(elemento,d->raiz);
     indice != -1?retira(d,&(d->raiz),elemento):insere(&(d->raiz),elemento);
     imprime(d->raiz);
-    //imprimeFB(d->raiz);
+    imprimeFB(d->raiz);
     free(d);
 }
 
