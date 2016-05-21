@@ -116,7 +116,7 @@ void rotacaoLR(TNo **a)
     if(neto->fb == 1)  {(*a)->fb = -1; filho->fb = 0;}
     else if(neto->fb == -1) {(*a)->fb = 0; filho->fb = 1;}
     else {(*a)->fb = 0; filho->fb = 0;}
-    filho->fb = 0;
+    neto->fb = 0;
 
     filho->dir = neto->esq;
     neto->esq = filho;
@@ -133,7 +133,7 @@ void rotacaoRL(TNo **a)
     if(neto->fb == 1)  {(*a)->fb = 0; filho->fb = -1;}
     else if(neto->fb == -1) {(*a)->fb = 1; filho->fb = 0;}
     else {(*a)->fb = 0; filho->fb = 0;}
-    filho->fb = 0;
+    neto->fb = 0;
     
     filho->esq = neto->dir;
     neto->dir = filho;
