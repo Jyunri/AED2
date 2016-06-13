@@ -1,19 +1,20 @@
+
 #include <iostream>
 #include <stdlib.h>
 using namespace std;
 
-typedef int TChave;
+typedef int TChave; 
 typedef struct
-{
-  TChave Chave;
-/* outros compomentes */
-} TItem;
-typedef struct SNo* TArvBin;
-typedef struct SNo {
-  TItem Item;
+{ 
+  TChave Chave; 
+/* outros compomentes */ 
+} TItem;  
+typedef struct SNo* TArvBin; 
+typedef struct SNo { 
+  TItem Item; 
   TArvBin Esq, Dir;
   int cor;
-} TNo;
+} TNo; 
 
 int imprime(TArvBin a)
 {
@@ -24,12 +25,16 @@ int imprime(TArvBin a)
         return -1;
     }
     cout << "(";
-    a->cor==0?cout << "N":cout << "R";
+    a->cor==0?cout << "N":cout << "R"; 
     cout << a->Item.Chave;
     imprime(a->Esq);
     imprime(a->Dir);
     cout << ")";
-    return 0;
+}
+    
+TArvBin constroiArvore()
+{
+    return NULL;
 }
 
 
@@ -38,8 +43,8 @@ int max(int a, int b)
     return a>b?a:b;
 }
 
-void inverte(TArvBin *a)
-{
+int inverte(TArvBin *a)
+{   
     if(a!=NULL)
     {
         if((*a)->cor==0)    (*a)->cor=1;
@@ -47,7 +52,7 @@ void inverte(TArvBin *a)
     }
 }
 
-void colore(TArvBin *a)
+int colore(TArvBin *a)
 {
     inverte(&(*a));
     inverte(&((*a)->Esq));
@@ -55,7 +60,7 @@ void colore(TArvBin *a)
 }
 
 void rotacaoE(TArvBin *a)
-{
+{   
     TArvBin filho = (*a)->Dir;
     (*a)->Dir = filho->Esq;
     filho->Esq = *a;
@@ -63,7 +68,7 @@ void rotacaoE(TArvBin *a)
 }
 
 void rotacaoD(TArvBin *a)
-{
+{   
     TArvBin filho = (*a)->Esq;
     (*a)->Esq = filho->Dir;
     filho->Dir = *a;
@@ -72,15 +77,15 @@ void rotacaoD(TArvBin *a)
 
 int verificaRubro(TArvBin a)
 {
-    return (a!=NULL&&a->cor==1)?1:0;
+    return (a!=NULL&&a->cor==1)?1:0;  
 }
 
-void BalancaEsq(TArvBin *pai, TArvBin *filho, TArvBin *avo)
+int BalancaEsq(TArvBin *pai, TArvBin *filho, TArvBin *avo)
 {
     if(verificaRubro((*avo)->Dir))    colore(avo);   //tio rubro
     else
     {
-        if((*pai)->Dir == *filho)   rotacaoE(pai);    //pai e filhos de lados opostos.
+        if((*pai)->Dir == *filho)   rotacaoE(pai);    //pai e filhos de lados opostos. 
         inverte(pai);
         inverte(avo);
         rotacaoD(avo);
@@ -133,44 +138,12 @@ int insereRec(TArvBin *a, int elemento, TArvBin *pai)
         BalancaNo(a,&((*a)->Dir),pai);
         return 1;
     }
-    return 0;
 }
 
-void insere(TArvBin *a, int elemento)
+int insere(TArvBin *a, int elemento)
 {
     insereRec(a,elemento,NULL);
     (*a)->cor = 0;
-}
-
-int removeRec(TArvBin *a, int elemento, TArvBin *pai)
-{
-    if(*a==NULL)
-    {
-        return 0;
-    }
-    if(elemento == (*a)->Item.Chave)
-    {
-        free(*a);
-    }
-    if(elemento<((*a)->Item.Chave))
-    {
-        removeRec(&((*a)->Esq),elemento,&(*a));
-        BalancaNo(a,&((*a)->Esq),pai);
-        return 1;
-    }
-    if(elemento>((*a)->Item.Chave))
-    {
-        removeRec(&((*a)->Dir),elemento,&(*a));
-        BalancaNo(a,&((*a)->Dir),pai);
-        return 1;
-    }
-    return 0;
-}
-
-void remove(TArvBin *a, int elemento)
-{
-    removeRec(a,elemento);
-    if(*a!=NULL)    (*a)->cor = 0;  //tratar caso nulo, se remover o no pode ficar nulo
 }
 
 int bh(TArvBin a)
@@ -196,38 +169,23 @@ int verificaARN(TArvBin a)
     return 1;
 }
 
-TArvBin ConstroiArvore()
-{
-    char c;
-    TArvBin raiz;
-    raiz = (TArvBin)malloc(sizeof(TNo));
-    cin >> c;
-    if(c == '(')
-    {
-        cin >> c;
-        if(c == 'N'|| c == 'R')
-        {
-            raiz = (TArvBin)malloc(sizeof(TNo));
-            cin >> raiz->Item.Chave;
-            raiz->cor = (c=='N')?0:1;
-            raiz->Esq = ConstroiArvore();
-            raiz->Dir = ConstroiArvore();
-            cin >> c;   //Le o fecha parenteses
-            return raiz;
-        }
-        else
-        {
-            return NULL;
-        }
-    }
-    return 0;
-}
-
 int main()
 {
-    int remover;
-    TArvBin arvore = ConstroiArvore();
-    cin >> remover;
-
+    TArvBin arvore = constroiArvore();
+    int n, elemento;
+    cin >> n;
+    for(int i = 1; i<=n; i++)
+    {
+        cin >> elemento;
+        insere(&arvore,elemento);
+       
+        /*
+        debug print 
+        cout << "arvore ate entao" << endl;
+        imprime(arvore);
+        cout << endl;
+        */
+    } 
+    cout << bh(arvore) << endl;
     imprime(arvore);
 }
