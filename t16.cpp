@@ -64,7 +64,7 @@ TVertice buscaMenorCaminho(TGrafo *g,int distancia[],int visitados[])
 	return menor;
 }
 
-void menorCaminho(TGrafo *g, TVertice inicial)
+int menorCaminho(TGrafo *g, TVertice inicial)
 {
 	TVertice menor;
 	int distancia[g->NVertices];
@@ -79,8 +79,8 @@ void menorCaminho(TGrafo *g, TVertice inicial)
 	distancia[inicial] = 0;
 
 	//debug
-	for(int i = 0;i<g->NVertices;i++)	cout << distancia[i] << ", ";
-	cout << endl;
+	// for(int i = 0;i<g->NVertices;i++)	cout << distancia[i] << ", ";
+	// cout << endl;
 
 	for(int i = 0; i< g->NVertices; i++)
 	{
@@ -92,19 +92,29 @@ void menorCaminho(TGrafo *g, TVertice inicial)
 	 	//atualiza distancia dos vertices vizinhos ao menor caminho
 	 	for(int i = 0; i < g->list[menor].size();i++)
 	 	{
-	 		if(distancia[g->list[menor].at(i).Vertice] == -1)	distancia[g->list[menor].at(i).Vertice] = g->list[menor].at(i).Aresta.Custo;
+	 		int adj = g->list[menor].at(i).Vertice;
+	 		if(distancia[adj] == -1)
+	 		{
+	 			distancia[adj] =  distancia[menor] + g->list[menor].at(i).Aresta.Custo;	//vertice ainda nao foi alcancado
+	 			antecessor[adj] = menor;	//atualiza antecessor
+	 		}
 	 		else
 	 		{
-	 			//if(antecessor[menor] == -1)
-	 			
-
+	 			if(distancia[adj] > distancia[menor] + g->list[menor].at(i).Aresta.Custo)	//Relaxamento
+	 			{
+	 				distancia[adj] =  distancia[menor] + g->list[menor].at(i).Aresta.Custo;
+	 				antecessor[adj] = menor;	//atualiza antecessor
+	 			}
 	 		}
 	 	}
-	 	//debug
-	 	cout << ""
-	 	for(int i = 0;i<g->NVertices;i++)	cout << distancia[i] << ", ";
-	 	cout << endl;
+	 	// //debug
+	 	// cout << ""
+	 	// for(int i = 0;i<g->NVertices;i++)	cout << distancia[i] << ", ";
+	 	// cout << endl;
 	}
+
+	for(int i = 0; i < g->NVertices; i++)	cout << "Distancia ate " << i << ": " << distancia[i] << endl;
+	return distancia[g->NVertices-1];
 }
 
 int main()
@@ -126,6 +136,6 @@ int main()
 		g->list[u].push_back(adj);
 	}
 
-	menorCaminho(g, 0);
-	imprimeListas(g);	//debug
+	cout << menorCaminho(g, 0);
+	//imprimeListas(g);	//debug
 }
