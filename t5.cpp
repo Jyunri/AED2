@@ -41,7 +41,7 @@ void imprimeVisitados(Tgrafo *g)
 	}
 }
 
-
+//retorna a capacidade maxima de um balde
 int getCapacidade(Tgrafo *g, int x)
 {
 	switch(x)
@@ -53,7 +53,8 @@ int getCapacidade(Tgrafo *g, int x)
 	return 0;
 }
 
-int getDestino(int a, int b, int c, int x)
+//retorna a quantidade atual de agua em um balde
+int getQuantidade(int a, int b, int c, int x)
 {
 	switch(x)
 	{
@@ -65,20 +66,18 @@ int getDestino(int a, int b, int c, int x)
 }
 
 
-
-
-
-void busca(Tgrafo *g,int a,int b, int c, int origem)
+void busca(Tgrafo *g, int c, int origem)
 {
 	queue<TVertice> fila;
 	TVertice primeiro;
+	int a = 0, b = 0;	//baldes 1 e 2 comecam vazios
 
 	//colocando o vertice origem na fila
 	TVertice v_origem;
-	v_origem.a = 0;
-	v_origem.b = 0;
-	v_origem.c = c;
-	fila.push(v_origem)
+	v_origem.quantidade_a = 0;
+	v_origem.quantidade_b = 0;
+	v_origem.quantidade_c = c;
+	fila.push(v_origem);
 
 	g->visitados[0][0][c] = 1;	//marcando origem como visitado
 
@@ -87,39 +86,43 @@ void busca(Tgrafo *g,int a,int b, int c, int origem)
 		TVertice primeiro = fila.front();	//pega primeiro da fila
 		fila.pop();	//retira primeiro da fila
 
-		for(int origem; origem <=3; origem++)	//considera os 3 baldes como origem
+		for(int origem = 1; origem <=3; origem++)	//considera os 3 baldes como origem
 		{
 			for(int destino = 1; destino <= 3; destino++)	//considera os 3 baldes como destino
 			{
 				if(destino != origem)	//se destino for diferente da origem
 				{
+					int q_origem = getQuantidade(a,b,c,origem);
+					int r_destino = getCapacidade(g,destino)-getQuantidade(a,b,c,destino);
+					int despejo = min(q_origem,r_destino);
+					cout << "origem: "<<origem << ", destino: "<< destino << ", q_origem: " << q_origem << ", r_destino: " << r_destino << ",despejo: " << despejo << endl;
+
+					//desconta da origem
+					switch(origem)
+					{
+						case 1: a-=despejo; break;
+						case 2: b-=despejo; break;
+						case 3: c-=despejo; break;
+					}
+
+					//adiciona ao destino
+					switch(destino)
+					{
+						case 1: a+=despejo; break;
+						case 2: b+=despejo; break;
+						case 3: c+=despejo; break;
+					}
+
+
 					if(!g->visitados[a][b][c])
 					{
 						g->visitados[a][b][c] = 1;	//marca como visitado
 						cout << "visitando vertice (" <<a<<","<<b<<","<<c<<")"<<endl;
-						int c_origem = getCapacidade(g,origem);
-						int r_destino = getCapacidade(g,destino)-getDestino(a,b,c,destino);
-						int despejo = min(c_origem,r_destino);
 
-						//desconta da origem
-						switch(origem)
-						{
-							case 1: a-=despejo; break;
-							case 2: b-=despejo; break;
-							case 3: c-=despejo; break;
-						}
 
-						//adiciona ao destino
-						switch(i)
-						{
-							case 1: a+=despejo; break;
-							case 2: b+=despejo; break;
-							case 3: c+=despejo; break;
-						}
-
-						cout << "a: " << a << endl;
-						cout << "b: " << b << endl;
-						cout << "c: " << c << endl;
+						// cout << "a: " << a << endl;
+						// cout << "b: " << b << endl;
+						// cout << "c: " << c << endl;
 
 					}
 				}
@@ -147,9 +150,8 @@ int main()
 				g->visitados[i][j][k] = 0;
 		}
 	}
-	//g->visitados[0][0][c] = 1; //marca estado inicial como visitado
 
-	busca(g,0,0,c,3);
+	busca(g,c,3);
 
 	//imprimeVisitados(g);
 
